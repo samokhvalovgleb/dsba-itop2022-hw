@@ -4,7 +4,7 @@
 ##### Suprevisor: Shershakov Sergey Andreevich
 
 # Problem statement:
-I had to create a QT application which will be helpful in finding the closest store with one parametr as an input. CSV file with the list of his competitors' store are given.
+I had to create a QT application which will be helpful in finding the closest store with one parametr as an input. CSV file with the list of his competitors' stores are given.
 # Individual problem:
 1) Add rows
 2) Delete rows
