@@ -1,7 +1,6 @@
 #ifndef STORE_MODEL_H
 #define STORE_MODEL_H
 
-
 #include <QAbstractTableModel>
 #include <QObject>
 #include "store.h"
@@ -12,11 +11,12 @@ class StoreModel : public QAbstractTableModel {
     Q_OBJECT
 public:
     std::vector<Store> stores;
+    int current_maximum;
     Store *selectedStore = new Store();
 
     StoreModel(QObject *parent, const std::vector<Store> &data);
 
-    StoreModel(QObject* parent);
+    StoreModel(QObject *parent);
 
     void reloadData(const std::vector<Store> &data);
 
@@ -34,7 +34,17 @@ public:
 
     bool isFilled(const Store store, const int curr);
 
-    void deleteData(int pos);
+    void deleteData(const int &pos);
+
+    void deleteMarkedData(const int pos);
+
+    void changeBy();
+
+    void percentil();
+
+    void valueChanged(int value);
+
+    bool fieldChecker(QString field);
 
     bool isEmArea(const Store &st);
 
@@ -44,9 +54,18 @@ public:
 
     bool isEmSales(const Store &st);
 
+    bool forIntegersChecker(const std::vector<QString> &curr);
+
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+private:
+    int _sliderData = 0;
+
+
 };
 
 

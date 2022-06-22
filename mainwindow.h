@@ -3,8 +3,8 @@
 
 #include "qlineedit.h"
 #include <QMainWindow>
-#include <store.h>
-#include <store_model.h>
+#include "store.h"
+#include "store_model.h"
 #include <QMetaType>
 
 Q_DECLARE_METATYPE(Store);
@@ -23,10 +23,14 @@ class MainWindow : public QMainWindow
 
 
 public:
+    int _value;
+    friend class StoreModel;
     MainWindow(QWidget *parent = nullptr);
     std::vector<Store> readCSV(QString csvFile);
     void save_data (const QString &dir);
     void add_new_row(Store curr);
+    void resetSlider();
+    void sliderChanged();
     ~MainWindow();
 
 
@@ -52,10 +56,21 @@ private slots:
 
     void on_findClosest_clicked();
 
+    void on_pushButton_8_clicked();
+
+    void on_tableView_doubleClicked(const QModelIndex &index);
+
+    void on_verticalSlider_valueChanged(int value);
+
+    void on_tableView_clicked(const QModelIndex &index);
+
 private:
     QString getValueAt(int x, int y);
     Ui::MainWindow *ui;
+    int _sliderData;
     StoreModel *mModel = nullptr
             ;
+
+
 };
 #endif // MAINWINDOW_H

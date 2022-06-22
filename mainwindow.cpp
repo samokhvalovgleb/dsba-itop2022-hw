@@ -16,6 +16,7 @@
 #include <QList>
 #include "addstore_window.h"
 #include "ui_addstore_window.h"
+#include <QPainter>
 
 
 
@@ -25,13 +26,14 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    QPainter painter (this);
     mModel = new StoreModel(this);
     ui->tableView->setModel(mModel);
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-//    logo = new logoWidget(this);
-//    logo->setFixedSize(30,30);
-//    ui->gridLayout->addWidget(logo, 0, 0);
+    ui->verticalSlider->setRange(0, 100);
+    ui->verticalSlider->sliderPosition();
+    ui->verticalSlider->setSingleStep(1);
+    ui->verticalSlider->setTracking(true);
 
 }
 
@@ -86,6 +88,12 @@ void MainWindow::add_new_row(Store curr)
 }
 
 
+void MainWindow::sliderChanged()
+{
+    _sliderData = ui->verticalSlider->value();
+}
+
+
 
 void MainWindow::on_importData_clicked()
 {
@@ -94,6 +102,8 @@ void MainWindow::on_importData_clicked()
     mModel->reloadData(readCSV(filename));
 
     ui->tableView->setModel(mModel);
+
+    mModel->percentil();
 }
 
 
@@ -153,7 +163,7 @@ void MainWindow::on_deletting_clicked()
 
 void MainWindow::on_editStore_clicked()
 {
-    editstore_window *editting_window = new editstore_window(mModel);
+    editstore_window *editting_window = new editstore_window(mModel, _value);
     editting_window->setWindowTitle("Editting Store");
     editting_window->show();
 }
@@ -205,5 +215,40 @@ void MainWindow::on_findClosest_clicked()
     findClosest *dd = new findClosest(mModel);
     dd->setWindowTitle("Finding Closest");
     dd->show();
+}
+
+
+void MainWindow::on_pushButton_8_clicked()
+{
+    int ind = ui->tableView->selectionModel()->currentIndex().row();
+    mModel->deleteMarkedData(ind);
+    mModel->percentil();
+}
+
+
+void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
+{
+    if (index.column() == 0)
+    {
+        editstore_window *editting_window = new editstore_window(mModel, mModel->stores[index.row()].data.at(0).toInt());
+        editting_window->setWindowTitle("Editting Store");
+        editting_window->show();
+    }
+}
+
+
+void MainWindow::on_verticalSlider_valueChanged(int value)
+{
+    mModel->valueChanged(value);
+    mModel->reloadData(mModel->stores);
+}
+
+
+void MainWindow::on_tableView_clicked(const QModelIndex &index)
+{
+    int value = mModel->stores[index.row()].data.at(0).toInt();
+    _value = value;
+    editstore_window *editting_window = new editstore_window(mModel, value);
+//    editting_window->show();
 }
 

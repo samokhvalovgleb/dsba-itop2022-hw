@@ -1,16 +1,20 @@
 #include "store_model.h"
+#include "qbrush.h"
+#include "qcolor.h"
 #include <cmath>
 #include <algorithm>
 
-StoreModel::StoreModel(QObject* parent)
-    : QAbstractTableModel(parent)
-{
 
-}
 
 StoreModel::StoreModel(QObject *parent, const std::vector<Store> &data)
     : QAbstractTableModel(parent) {
     reloadData(data);
+}
+
+StoreModel::StoreModel(QObject *parent)
+    : QAbstractTableModel(parent)
+{
+
 }
 
 void StoreModel::reloadData(const std::vector<Store> &data) {
@@ -32,20 +36,29 @@ QVariant StoreModel::data(const QModelIndex &index, int role) const {
         const Store &store = stores.at(index.row());
         return store.data[index.column()];
     }
+    else if (role == Qt::BackgroundRole)
+    {
+        if (((stores[index.row()].data.at(2).toInt() * 100) / current_maximum) <= _sliderData)
+            return QBrush(QColor(255, 43, 43));
+    }
+
 
     return {};
 }
 
 bool StoreModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    beginResetModel();
     if (role == Qt::EditRole) {
         Store &store = stores.at(index.row());
         store.data[index.column()] = value;
         return true;
     }
-
     return false;
+    endResetModel();
+    emit layoutChanged();
 }
+
 
 void StoreModel::insertData(Store curr)
 {
@@ -53,13 +66,45 @@ void StoreModel::insertData(Store curr)
     emit layoutChanged();
 }
 
-void StoreModel::deleteData(int pos)
+void StoreModel::deleteData(const int &pos)
 {
     for (int i = 0; i < stores.size(); ++i)
     {
         if (stores[i].data[0].toInt() == pos)
             stores.erase(stores.begin() + (i));
     }
+
+    for (int i = 0; i < stores.size(); ++i)
+        stores[i].data[0] = i + 1;
+
+    emit layoutChanged();
+}
+
+void StoreModel::deleteMarkedData(const int pos)
+{
+    stores.erase(stores.begin() + pos);
+    for (int i = 0; i < stores.size(); ++i)
+        stores[i].data[0] = i + 1;
+    emit layoutChanged();
+}
+
+void StoreModel::percentil()
+{
+    int maxx = 0;
+    for (int i = 0; i < stores.size(); ++i)
+    {
+        if (stores[i].data.at(2).toInt() > maxx)
+        {
+            maxx = stores[i].data.at(2).toInt();
+        }
+    }
+    current_maximum = maxx;
+
+}
+
+void StoreModel::valueChanged(int value)
+{
+    _sliderData = value;
     emit layoutChanged();
 }
 
@@ -87,6 +132,19 @@ void StoreModel::changeById(const int &idToChange, const int &storeAreaTo, const
     emit layoutChanged();
 
 }
+
+bool StoreModel::fieldChecker(QString field)
+{
+//    QRegExp re("\\d*");
+//    if (re.exactMatch(field))
+//        return true;
+//    return false;
+    bool flag;
+    int a = field.toInt(&flag, 10);
+    return flag;
+}
+
+
 
 template<typename T>
 std::vector<T> slice(std::vector<T> const &v, int m, int n)
@@ -126,6 +184,7 @@ void StoreModel::fillna(Store store, const int column, const int row)
         store.data[column] = new_stores[1].data.at(column).toInt();
         stores[row] = store;
     }
+
     else
     {
         store.data[column] = new_stores[0].data.at(column).toInt();
@@ -172,6 +231,11 @@ bool StoreModel::isEmSales(const Store &store)
     if (store.data.at(4) == "")
         return true;
     return false;
+}
+
+Qt::ItemFlags StoreModel::flags(const QModelIndex &index) const
+{
+    return {Qt::ItemIsEnabled | Qt::ItemIsEditable};
 }
 
 

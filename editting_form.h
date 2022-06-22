@@ -23,6 +23,7 @@ private:
     Ui::editting_form *ui;
     StoreModel *modelForForm;
     int toEditId;
+
 };
 
 #endif // EDITTING_FORM_H

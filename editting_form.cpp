@@ -34,6 +34,7 @@ void editting_form::on_pushButton_clicked()
 {
     std::vector<QVariant> woId;
     int toEditArea, toEditAvailable, toEditCustomers, toEditSales;
+
     woId.push_back((ui->spinBox->text()).toInt());
     woId.push_back((ui->spinBox_2->text()).toInt());
     woId.push_back((ui->spinBox_3->text()).toInt());
